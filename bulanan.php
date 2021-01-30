@@ -44,14 +44,33 @@ require "koneksi.php";
 					$dt=date('Ym',strtotime($bulan));
 					
 					$sql = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bca WHERE keterangan LIKE '%$dt%'");
-                    $result = mysqli_fetch_assoc($sql);
-                    $cr_bca = $result['credit'];
+                    
+                    if(mysqli_num_rows($sql) > 0) {
+                        $result = mysqli_fetch_assoc($sql);
+                        $cr_bca = $result['credit'];
+                        if(count($result) > 0) {
+                            echo "
+                            <h6 class='card-title mb-1'>
+                            BANK BCA : ".number_format($cr_bca,0,',','.')."
+                            </h6>
+                            ";
+                        }
+                    }
+                    else {
+                        echo "
+                        <h6 class='card-title mb-1'>
+                        BANK BCA : 0
+                        </h6>
+                        ";
+                    }
+
+                    /* $cr_bca = $result['credit'];
                     // echo number_format($cr,0,',','.');
                     echo "
                     <h6 class='card-title mb-1'>
                     BANK BCA : ".number_format($cr_bca,0,',','.')."
                     </h6>
-                    ";
+                    "; */
 					
                 }
                 else {
@@ -95,18 +114,35 @@ require "koneksi.php";
                 <?php
 				if(isset($_GET['tanggal'])) {
 					$bulan = $_GET['tanggal'];
-					$dt=date('m',strtotime($bulan));
+                    // $dt=date('my',strtotime($bulan));
+                    $pecah_bulan=explode("-", $bulan);
+                    $thn=$pecah_bulan[0];
+                    $bln=$pecah_bulan[1];
 					
-					$sql = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bri WHERE MONTH(tanggal_hpt)='$dt' ");
-                    $result = mysqli_fetch_assoc($sql);
-                    $cr_bri = $result['credit'];
-                    // echo number_format($cr,0,',','.');
-                    echo "
-                    <h6 class='card-title mb-1'>
-                    BANK BRI : ".number_format($cr_bri,0,',','.')."
-                    </h6>
-                    ";
-					
+					$sql = mysqli_query($koneksi, " SELECT sum(credit) as credit FROM bri WHERE MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn'
+                    ORDER BY tanggal_hpt asc ");
+					// $sql = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bri WHERE description1 LIKE '%$dt%' ");
+					// $sql = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bri WHERE description1 LIKE '%$dt%' AND description1 NOT LIKE '%$dt' AND description1 NOT LIKE '%TGL06$dt%'");
+                    
+                    if(mysqli_num_rows($sql) > 0) {
+                        $result = mysqli_fetch_assoc($sql);
+                        $cr_bri = $result['credit'];
+                        if(count($result) > 0) {
+                            echo "
+                            <h6 class='card-title mb-1'>
+                            BANK BRI : ".number_format($cr_bri,0,',','.')."
+                            </h6>
+                            ";
+                        }
+                    }
+                    else {
+                        echo "
+                        <h6 class='card-title mb-1'>
+                        BANK BRI : 0
+                        </h6>
+                        ";
+                    }
+                    
                 }
                 else {
                 ?>
@@ -121,10 +157,10 @@ require "koneksi.php";
                 <!-- awal bank bni -->
                 <?php
 				if(isset($_GET['tanggal'])) {
-					$bulan = @$_GET['tanggal'];
-					$dt=date('m',strtotime($bulan));
+					$bulan = $_GET['tanggal'];
+					$dt=date('mY',strtotime($bulan));
 					
-					$sql = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE MONTH(tanggal_hpt)='$dt' ");
+					$sql = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE description1 LIKE '%$dt%' ");
                     $result = mysqli_fetch_assoc($sql);
                     $cr_bni = $result['credit'];
                     // echo number_format($cr,0,',','.');
@@ -231,8 +267,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr = $result['credit'];
@@ -257,8 +295,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4904' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4904' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_palimanan_mandiri = $result['credit'];
@@ -281,8 +321,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4905' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4905' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_sumberjaya_mandiri = $result['credit'];
@@ -305,8 +347,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4907' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4907' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_cikedung_mandiri = $result['credit'];
@@ -329,8 +373,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4908' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4908' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_subang_mandiri = $result['credit'];
@@ -353,8 +399,11 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4909' AND MONTH(tanggal_hpt)='$dt' ");
+                                        // $dt=date('m',strtotime($bulan));
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4909' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         // $cr = $result['credit'];
@@ -378,8 +427,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='1437' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='1437' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_cikampek_utama_mandiri = $result['credit'];
@@ -402,8 +453,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='1420' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='1420' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_cikampek_mandiri = $result['credit'];
@@ -426,8 +479,10 @@ require "koneksi.php";
                                     // jika filter pencarian dipilih
                                     if(isset($_GET['tanggal'])) {
                                         $bulan = $_GET['tanggal'];
-                                        $dt=date('m',strtotime($bulan));
-                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4906' AND MONTH(tanggal_hpt)='$dt' ");
+                                        $pecah_bulan=explode("-", $bulan);
+                                        $thn=$pecah_bulan[0];
+                                        $bln=$pecah_bulan[1];
+                                        $query = mysqli_query($koneksi, "SELECT tanggal_hpt,SUM(credit) as credit FROM mandiri WHERE kode_gerbang='4906' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                         $result = mysqli_fetch_assoc($query);
                                         $cr_kertajati_mandiri = $result['credit'];
@@ -467,8 +522,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr = $result['credit'];
@@ -491,8 +548,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600005' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600005' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_palimanan_bri = $result['credit'];
@@ -513,8 +572,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600004' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600004' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_sumberjaya_bri = $result['credit'];
@@ -535,8 +596,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600002' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600002' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikedung_bri = $result['credit'];
@@ -557,8 +620,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600001' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600001' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_subang_bri = $result['credit'];
@@ -579,8 +644,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600000' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600000' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_kalijati_bri = $result['credit'];
@@ -601,8 +668,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1929570262' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1929570262' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikampek_utama_bri = $result['credit'];
@@ -623,8 +692,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1929570116' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1929570116' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikampek_bri = $result['credit'];
@@ -645,8 +716,10 @@ require "koneksi.php";
                                         <?php
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600003' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bri WHERE kode_gerbang = '1984600003' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_kertajati_bri = $result['credit'];
@@ -672,7 +745,7 @@ require "koneksi.php";
                     <!-- show datatablenya disini -->
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered" id="dataTableBNI" width="100%" cellspacing="0">
+                            <table class="table  table-bordered table-hover" id="dataTableBNI" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
                                     <th>Gerbang</th>
@@ -688,8 +761,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr = $result['credit'];
@@ -714,8 +789,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang IN ('500130','500100') AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang IN ('500130','500100') AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_palimanan_bni = $result['credit'];
@@ -738,8 +815,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500125' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500125' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_sumberjaya_bni = $result['credit'];
@@ -762,8 +841,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500115' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500115' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikedung_bni = $result['credit'];
@@ -786,8 +867,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500110' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500110' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_subang_bni = $result['credit'];
@@ -810,8 +893,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500105' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500105' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_kalijati_bni = $result['credit'];
@@ -834,8 +919,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang = '301426' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang = '301426' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikampek_utama_bni = $result['credit'];
@@ -858,8 +945,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='301420' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='301420' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_cikampek_bni = $result['credit'];
@@ -882,8 +971,10 @@ require "koneksi.php";
                                         // jika filter pencarian dipilih
                                         if(isset($_GET['tanggal'])) {
                                             $bulan = $_GET['tanggal'];
-                                            $dt=date('m',strtotime($bulan));
-                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500120' AND MONTH(tanggal_hpt)='$dt' ");
+                                            $pecah_bulan=explode("-", $bulan);
+                                            $thn=$pecah_bulan[0];
+                                            $bln=$pecah_bulan[1];
+                                            $query = mysqli_query($koneksi, " SELECT SUM(credit) as credit FROM bni WHERE kode_gerbang='500120' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
 
                                             $result = mysqli_fetch_assoc($query);
                                             $cr_kertajati_bni = $result['credit'];
@@ -910,53 +1001,29 @@ require "koneksi.php";
                     <!-- show datatablenya disini -->
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTableBca" width="100%" cellspacing="0">
+                                <table class="table  table-bordered table-hover" id="dataTableBca" width="100%" cellspacing="0">
                                 <thead>
                                     <tr>
                                         <th>Gerbang</th>
                                         <th>Rekening Koran (RC)</th>
                                     </tr>
                                 </thead>
-                                <tfoot>
-                                    <tr>
-                                        <th>Total</th>
-                                        <th>
-                                            <?php
-                                            /* note: untuk bca palimanan kode gerbang nyebrang palimanan dan sumberjaya dan palimanan c2 */
-                                            // jika filter pencarian dipilih
-                                            if(isset($_GET['tanggal'])) {
-                                                $bulan = $_GET['tanggal'];
-                                                $dt=date('Ym',strtotime($bulan));
-                                                $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bca WHERE keterangan like '%$dt%' ");
-
-                                                $result = mysqli_fetch_assoc($query);
-                                                $cr = $result['credit'];
-                                                echo number_format($cr,0,',','.');
-                                                
-                                            }
-                                            // selain itu tampilkan nilai 0
-                                            else {
-                                                echo "0";
-                                            }
-                                            ?>
-                                        </th>
-                                    </tr>
-                                </tfoot>
+                                
                                 <tbody>
                                     <!-- get data per gerbang dari database -->
                                     <tr>
                                         <td>Palimanan</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 /* note: untuk bca palimanan kode gerbang nyebrang palimanan dan sumberjaya dan palimanan c2 */
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('m',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang palimanan
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bca WHERE kode_gerbang = ' 885023100201' AND MONTH(tanggal_hpt)='$dt'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bca WHERE kode_gerbang = ' 885023100201' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn'");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -974,16 +1041,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Sumberjaya</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang sumberjaya
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885023100200'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885023100200' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1001,16 +1068,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Cikedung</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang cikedung
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885023100198'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885023100198' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1028,16 +1095,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Subang</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang subang
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885023100197'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885023100197' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1055,16 +1122,17 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Kalijati</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
                                                     // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang kalijati
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885023100196'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885023100196' AND month(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1082,16 +1150,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Cikampek Utama</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang cikampek utama
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885000803566'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885000803566' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1109,16 +1177,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Cikampek</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang cikampek 
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885000500134'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885000500134' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1136,16 +1204,16 @@ require "koneksi.php";
 
                                     <tr>
                                         <td>Kertajati</td>
-                                        <td>
+                                        <td tabindex="0">
                                             <?php
                                                 // jika filter pencarian dipilih
                                                 if(isset($_GET['tanggal'])) {
                                                     // ambil inputan user 
                                                     $bulan = $_GET['tanggal'];
-                                                    // konversi inputan ke format tanggal
-                                                    $dt=date('Ym',strtotime($bulan));
-                                                    // query mysql untuk menampilkan tanggal yang dipilih dan kode gerbang kertajati 
-                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE keterangan LIKE '%$dt%' AND kode_gerbang=' 885023100199'");
+                                                    $pecah_bulan=explode("-", $bulan);
+                                                    $thn=$pecah_bulan[0];
+                                                    $bln=$pecah_bulan[1];
+                                                    $sql = mysqli_query($koneksi, "SELECT SUM(credit) AS credit FROM bca WHERE kode_gerbang=' 885023100199' AND MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
                                                     // bungkus query mysql untuk ditampilkan
                                                     $result = mysqli_fetch_assoc($sql);
                                                     // tampilkan data ke browser
@@ -1162,6 +1230,34 @@ require "koneksi.php";
                                     </tr>
 
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total</th>
+                                        <th  tabindex="0">
+                                            <?php
+                                            /* note: untuk bca palimanan kode gerbang nyebrang palimanan dan sumberjaya dan palimanan c2 */
+                                            // jika filter pencarian dipilih
+                                            if(isset($_GET['tanggal'])) {
+                                                /* $bulan = $_GET['tanggal'];
+                                                $pecah_bulan=explode("-", $bulan);
+                                                $thn=$pecah_bulan[0];
+                                                $bln=$pecah_bulan[1];
+                                                $query = mysqli_query($koneksi, "SELECT SUM(credit) as credit FROM bca WHERE MONTH(tanggal_hpt)='$bln' AND YEAR(tanggal_hpt)='$thn' ");
+
+                                                $result = mysqli_fetch_assoc($query);
+                                                $cr = $result['credit']; */
+                                                $totalbca = $cr_kalijati_bca+$cr_subang_bca+$cr_cikedung_bca+$cr_kertajati_bca+$cr_sumberjaya_bca+$cr_palimanan_bca+$cr_cikampek_bca+$cr_cikampek_utama_bca;
+                                                echo number_format($totalbca,0,',','.');
+                                                
+                                            }
+                                            // selain itu tampilkan nilai 0
+                                            else {
+                                                echo "0";
+                                            }
+                                            ?>
+                                        </th>
+                                    </tr>
+                                </tfoot>
                                 </table>
                             </div>
                         </div>
